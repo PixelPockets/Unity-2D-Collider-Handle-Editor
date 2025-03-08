@@ -26,4 +26,7 @@ How to use -
 ![Screenshot 2025-03-08 075607](https://github.com/user-attachments/assets/996f5e60-71d0-4878-ab2c-d6eff294b5f2)
 
 You can click on ANY scene tool again while editing collider handles, and this will UNCHECK the checkbox for collider handle editing.
+
+
+
 ![Screenshot 2025-03-08 101711](https://github.com/user-attachments/assets/1f7382b2-e6ec-4e67-94c2-4c9c544abdd3)
