@@ -4,7 +4,7 @@ NOTE: THESE FILES MUST BE PLACED IN AN "EDITOR" FOLDER. MAKE SURE ColliderEditMo
 
 How to use - 
 
-1) Click on the "Edit Collider Handles" checkbox to edit the scale of any 2D colldier, including Unity's 2D composite collider
+1) Click on the "Edit Collider Handles" checkbox to edit the scale of any 2D collider handle, including Unity's 2D composite collider
 2) Choose the color of the collider handles by clicking on the "Handle Color" box.
 3) Choose which handle shape you'd like to use by clicking on the "Handle Shape" dropdown menu. 
 
