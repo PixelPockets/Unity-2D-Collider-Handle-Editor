@@ -4,10 +4,11 @@ using UnityEngine;
 [CustomEditor(typeof(PolygonCollider2D))]
 public class PolygonCollider2DHandleEditor : Editor
 {
-    private const string HandleSizeKey = "PolygonCollider2D_HandleSize";
-    private const string HandleColorKey = "PolygonCollider2D_HandleColor";
-    private const string EditColliderKey = "PolygonCollider2D_EditCollider";
-    private const string HandleShapeKey = "PolygonCollider2D_HandleShape";
+    private const string HandleSizeKey     = "PolygonCollider2D_HandleSize";
+    private const string HandleColorKey    = "PolygonCollider2D_HandleColor";
+    private const string EditColliderKey   = "PolygonCollider2D_EditCollider";
+    private const string HandleShapeKey    = "PolygonCollider2D_HandleShape";
+    private const string ConsistentSizeKey = "PolygonCollider2D_ConsistentSize";
 
     private enum HandleShape
     {
@@ -21,14 +22,16 @@ public class PolygonCollider2DHandleEditor : Editor
     private float _handleSize = 0.1f;
     private Color _handleColor = Color.green;
     private bool _editCollider;
+    private bool _useConsistentSize = true;
     private int _currentPathIndex = 0;
 
     private void OnEnable()
     {
-        _handleSize = EditorPrefs.GetFloat(HandleSizeKey, 0.1f);
-        _handleColor = GetColorFromPrefs(HandleColorKey, Color.green);
-        _editCollider = EditorPrefs.GetBool(EditColliderKey, false);
-        _handleShape = (HandleShape)EditorPrefs.GetInt(HandleShapeKey, (int)HandleShape.Cube);
+        _handleSize       = EditorPrefs.GetFloat(HandleSizeKey, 0.1f);
+        _handleColor      = GetColorFromPrefs(HandleColorKey, Color.green);
+        _editCollider     = EditorPrefs.GetBool(EditColliderKey, false);
+        _handleShape      = (HandleShape)EditorPrefs.GetInt(HandleShapeKey, (int)HandleShape.Cube);
+        _useConsistentSize = EditorPrefs.GetBool(ConsistentSizeKey, true);
 
         if (_editCollider)
         {
@@ -47,17 +50,6 @@ public class PolygonCollider2DHandleEditor : Editor
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Collider Handle Customization", EditorStyles.boldLabel);
-
-        float newHandleSize = EditorGUILayout.FloatField("Handle Size", _handleSize);
-        newHandleSize = Mathf.Max(0.01f, newHandleSize);
-        Color newHandleColor = EditorGUILayout.ColorField("Handle Color", _handleColor);
-        HandleShape newHandleShape = (HandleShape)EditorGUILayout.EnumPopup("Handle Shape", _handleShape);
-
-        PolygonCollider2D collider = (PolygonCollider2D)target;
-        if (collider.pathCount > 1)
-        {
-            _currentPathIndex = EditorGUILayout.IntSlider("Path Index", _currentPathIndex, 0, collider.pathCount - 1);
-        }
 
         bool newEditCollider = GUILayout.Toggle(_editCollider, "Edit Collider Handles");
         if (newEditCollider != _editCollider)
@@ -84,6 +76,26 @@ public class PolygonCollider2DHandleEditor : Editor
         else if (_editCollider)
         {
             EditorGUILayout.HelpBox("Edit mode active: use the Scene view handles to adjust the collider points.\nNote: Scene tools are disabled. Selecting a scene tool disables handle editing.", MessageType.Info);
+        }
+
+        EditorGUILayout.Space();
+        float newHandleSize = EditorGUILayout.FloatField("Handle Size", _handleSize);
+        newHandleSize = Mathf.Max(0.01f, newHandleSize);
+        Color newHandleColor = EditorGUILayout.ColorField("Handle Color", _handleColor);
+        HandleShape newHandleShape = (HandleShape)EditorGUILayout.EnumPopup("Handle Shape", _handleShape);
+        
+        bool newUseConsistentSize = EditorGUILayout.Toggle("Consistent Size When Zooming", _useConsistentSize);
+        if (newUseConsistentSize != _useConsistentSize)
+        {
+            _useConsistentSize = newUseConsistentSize;
+            EditorPrefs.SetBool(ConsistentSizeKey, _useConsistentSize);
+            SceneView.RepaintAll();
+        }
+
+        PolygonCollider2D collider = (PolygonCollider2D)target;
+        if (collider.pathCount > 1)
+        {
+            _currentPathIndex = EditorGUILayout.IntSlider("Path Index", _currentPathIndex, 0, collider.pathCount - 1);
         }
 
         if (!Mathf.Approximately(newHandleSize, _handleSize) || newHandleColor != _handleColor || newHandleShape != _handleShape)
@@ -129,8 +141,14 @@ public class PolygonCollider2DHandleEditor : Editor
         for (int i = 0; i < points.Length; i++)
         {
             Vector3 worldPos = collider.transform.TransformPoint(points[i]);
+            
+            float effectiveHandleSize = _handleSize;
+            if (_useConsistentSize)
+            {
+                effectiveHandleSize *= HandleUtility.GetHandleSize(worldPos);
+            }
 
-            Vector3 newWorldPos = Handles.FreeMoveHandle(worldPos, _handleSize, Vector3.zero, GetHandleCap());
+            Vector3 newWorldPos = Handles.FreeMoveHandle(worldPos, effectiveHandleSize, Vector3.zero, GetHandleCap());
 
             Vector2 newLocalPos = collider.transform.InverseTransformPoint(newWorldPos);
             newPoints[i] = newLocalPos;
@@ -193,4 +211,3 @@ public class PolygonCollider2DHandleEditor : Editor
         );
     }
 }
-
