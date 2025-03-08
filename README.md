@@ -19,6 +19,7 @@ How to use -
 2D composite collider editor interface - 
 
 Note: With the composite collider, the handle editing applies to ALL 2D colliders within that composite collider. 
+
 This is why it says "Global Handle Size"
 
 ![Screenshot 2025-03-07 231837](https://github.com/user-attachments/assets/cc2c8d62-556e-4766-b370-164c6ea742cf)
