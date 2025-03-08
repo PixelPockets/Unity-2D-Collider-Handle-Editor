@@ -30,3 +30,11 @@ You can click on ANY scene tool again while editing collider handles, and this w
 
 
 ![Screenshot 2025-03-08 101711](https://github.com/user-attachments/assets/1f7382b2-e6ec-4e67-94c2-4c9c544abdd3)
+
+
+
+**UPDATE - You can now keep the scale of the handles consistent when zooming in and out in scene view, if you prefer this behavior.**
+
+
+![Screenshot 2025-03-08 143632](https://github.com/user-attachments/assets/9bf74138-1b9d-4e04-94f9-38fb7b577777)
+
