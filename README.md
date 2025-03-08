@@ -1,8 +1,10 @@
-These files allow you to edit the scale of Unity's 2D collider handles. 
+These files allow you to edit the scale of Unity's 2D collider handles.  
+ 
+NOTE: These files must be placed in an "Editor" folder. Make sure to include ColliderEditModeManager. This file is necessary for this to function. 
 
-NOTE: THESE FILES MUST BE PLACED IN AN "EDITOR" FOLDER. MAKE SURE ColliderEditModeManager IS INCLUDED. THIS FILE IS NECESSARY FOR THIS TO FUNCTION. 
+NOTE: Using these files will remove Unity's default 2D collider editing toggle. 
 
-NOTE: USING THESE FILES WILL REMOVE UNITY'S DEFAULT 2D COLLIDER EDITING TOGGLE. 
+**WARNING: THIS HAS ONLY BEEN TESTED WITH UNITY VERSION 2022.3.53f.**
 
 How to use - 
 
@@ -26,4 +28,4 @@ This is why it says "Global Handle Size".
 
 ![Screenshot 2025-03-07 231837](https://github.com/user-attachments/assets/cc2c8d62-556e-4766-b370-164c6ea742cf)
 
-WARNING!!! - Clicking on the checkbox "Edit Collider Handles" will unselect ANY scene tool you curently have selected. Clicking on ANY scene tool while editing collider handles will UNCHECK the checkbox for collider handle editing. You will need to check this box again if you want to edit the collider handles. 
+**WARNING!!! - Clicking on the checkbox "Edit Collider Handles" will unselect ANY scene tool you curently have selected. Clicking on ANY scene tool while editing collider handles will UNCHECK the checkbox for collider handle editing. You will need to check this box again if you want to edit the collider handles.**
