@@ -1,6 +1,6 @@
 These files allow you to edit the scale of Unity's 2D collider handles. 
 
-NOTE: THESE FILES MUST BE PLACED IN AN "EDITOR" FOLDER.
+NOTE: THESE FILES MUST BE PLACED IN AN "EDITOR" FOLDER. MAKE SURE ColliderEditModeManager IS INCLUDED. THIS FILE IS NECESSARY FOR THIS TO FUNCTION
 
 How to use - 
 
