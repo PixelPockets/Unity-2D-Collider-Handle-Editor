@@ -4,10 +4,11 @@ using UnityEngine;
 [CustomEditor(typeof(BoxCollider2D))]
 public class BoxCollider2DHandleEditor : Editor
 {
-    private const string HandleSizeKey   = "BoxCollider2D_HandleSize";
-    private const string HandleColorKey  = "BoxCollider2D_HandleColor";
-    private const string EditColliderKey = "BoxCollider2D_EditCollider";
-    private const string HandleShapeKey  = "BoxCollider2D_HandleShape";
+    private const string HandleSizeKey       = "BoxCollider2D_HandleSize";
+    private const string HandleColorKey      = "BoxCollider2D_HandleColor";
+    private const string EditColliderKey     = "BoxCollider2D_EditCollider";
+    private const string HandleShapeKey      = "BoxCollider2D_HandleShape";
+    private const string ConsistentSizeKey   = "BoxCollider2D_ConsistentSize";
 
     private enum HandleShape
     {
@@ -21,13 +22,15 @@ public class BoxCollider2DHandleEditor : Editor
     private float _handleSize = 0.1f;
     private Color _handleColor = Color.green;
     private bool _editCollider;
+    private bool _useConsistentSize = true;
 
     private void OnEnable()
     {
-        _handleSize   = EditorPrefs.GetFloat(HandleSizeKey, 0.1f);
-        _handleColor  = GetColorFromPrefs(HandleColorKey, Color.green);
-        _editCollider = EditorPrefs.GetBool(EditColliderKey, false);
-        _handleShape  = (HandleShape)EditorPrefs.GetInt(HandleShapeKey, (int)HandleShape.Cube);
+        _handleSize       = EditorPrefs.GetFloat(HandleSizeKey, 0.1f);
+        _handleColor      = GetColorFromPrefs(HandleColorKey, Color.green);
+        _editCollider     = EditorPrefs.GetBool(EditColliderKey, false);
+        _handleShape      = (HandleShape)EditorPrefs.GetInt(HandleShapeKey, (int)HandleShape.Cube);
+        _useConsistentSize = EditorPrefs.GetBool(ConsistentSizeKey, true);
 
         if (_editCollider)
         {
@@ -45,12 +48,7 @@ public class BoxCollider2DHandleEditor : Editor
         DrawDefaultInspector();
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Collider Handle Customization", EditorStyles.boldLabel);
-
-        float newHandleSize = EditorGUILayout.FloatField("Handle Size", _handleSize);
-        newHandleSize = Mathf.Max(0.01f, newHandleSize);
-        Color newHandleColor = EditorGUILayout.ColorField("Handle Color", _handleColor);
-        HandleShape newHandleShape = (HandleShape)EditorGUILayout.EnumPopup("Handle Shape", _handleShape);
-
+        
         bool newEditCollider = GUILayout.Toggle(_editCollider, "Edit Collider Handles");
         if (newEditCollider != _editCollider)
         {
@@ -67,7 +65,7 @@ public class BoxCollider2DHandleEditor : Editor
             }
             SceneView.RepaintAll();
         }
-
+        
         if (_editCollider && Tools.current != Tool.None)
         {
             EditorGUILayout.HelpBox("A scene tool is active. To use it, editing mode will be disabled.", MessageType.Warning);
@@ -75,6 +73,20 @@ public class BoxCollider2DHandleEditor : Editor
         else if (_editCollider)
         {
             EditorGUILayout.HelpBox("Edit mode active: use the Scene view handles to edit the collider.\nNote: Scene tools are disabled; selecting a scene tool disables handle editing.", MessageType.Info);
+        }
+
+        EditorGUILayout.Space();
+        float newHandleSize = EditorGUILayout.FloatField("Handle Size", _handleSize);
+        newHandleSize = Mathf.Max(0.01f, newHandleSize);
+        Color newHandleColor = EditorGUILayout.ColorField("Handle Color", _handleColor);
+        HandleShape newHandleShape = (HandleShape)EditorGUILayout.EnumPopup("Handle Shape", _handleShape);
+        
+        bool newUseConsistentSize = EditorGUILayout.Toggle("Consistent Size When Zooming", _useConsistentSize);
+        if (newUseConsistentSize != _useConsistentSize)
+        {
+            _useConsistentSize = newUseConsistentSize;
+            EditorPrefs.SetBool(ConsistentSizeKey, _useConsistentSize);
+            SceneView.RepaintAll();
         }
 
         if (!Mathf.Approximately(newHandleSize, _handleSize) || newHandleColor != _handleColor || newHandleShape != _handleShape)
@@ -115,10 +127,17 @@ public class BoxCollider2DHandleEditor : Editor
         Vector3 right  = colliderCenter + new Vector3(size.x / 2, 0, 0);
 
         Handles.color = _handleColor;
-        Vector3 newTop    = Handles.FreeMoveHandle(top, _handleSize, Vector3.zero, GetHandleCap());
-        Vector3 newBottom = Handles.FreeMoveHandle(bottom, _handleSize, Vector3.zero, GetHandleCap());
-        Vector3 newLeft   = Handles.FreeMoveHandle(left, _handleSize, Vector3.zero, GetHandleCap());
-        Vector3 newRight  = Handles.FreeMoveHandle(right, _handleSize, Vector3.zero, GetHandleCap());
+        
+        float effectiveHandleSize = _handleSize;
+        if (_useConsistentSize)
+        {
+            effectiveHandleSize *= HandleUtility.GetHandleSize(colliderCenter);
+        }
+        
+        Vector3 newTop    = Handles.FreeMoveHandle(top, effectiveHandleSize, Vector3.zero, GetHandleCap());
+        Vector3 newBottom = Handles.FreeMoveHandle(bottom, effectiveHandleSize, Vector3.zero, GetHandleCap());
+        Vector3 newLeft   = Handles.FreeMoveHandle(left, effectiveHandleSize, Vector3.zero, GetHandleCap());
+        Vector3 newRight  = Handles.FreeMoveHandle(right, effectiveHandleSize, Vector3.zero, GetHandleCap());
 
         if (newTop != top || newBottom != bottom || newLeft != left || newRight != right)
         {
