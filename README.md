@@ -12,6 +12,10 @@ How to use -
 
 ![Screenshot 2025-03-07 230205](https://github.com/user-attachments/assets/d2680652-5872-4a8d-80e5-aca1667dd574)
 
+![Screenshot 2025-03-07 231112](https://github.com/user-attachments/assets/3c74a68e-d10d-4afb-b17f-9b8777292d6d)
+
+![Screenshot 2025-03-07 231127](https://github.com/user-attachments/assets/9b6b64ff-e716-4361-84f4-6d06151086dc)
+
 2D composite collider editor interface - 
 
 ![Screenshot 2025-03-07 230512](https://github.com/user-attachments/assets/94f6393c-f1e4-4986-9623-7fde6deda114)
