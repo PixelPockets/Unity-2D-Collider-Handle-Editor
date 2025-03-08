@@ -8,10 +8,12 @@ public class CompositeCollider2DHandleEditor : Editor
     private const string HandleColorKey      = "CompositeCollider_HandleColor";
     private const string EditHandlesKey      = "CompositeCollider_EditHandles";
     private const string HandleShapeKey      = "CompositeCollider_HandleShape";
+    private const string ConsistentSizeKey   = "CompositeCollider_ConsistentSize";
 
     private float _globalHandleSize = 0.1f;
     private Color _handleColor = Color.green;
     private bool _editHandles;
+    private bool _useConsistentSize = true;
 
     private enum HandleShape 
     { 
@@ -28,6 +30,7 @@ public class CompositeCollider2DHandleEditor : Editor
         _handleColor = GetColorFromPrefs(HandleColorKey, Color.green);
         _editHandles = EditorPrefs.GetBool(EditHandlesKey, false);
         _handleShape = (HandleShape)EditorPrefs.GetInt(HandleShapeKey, (int)HandleShape.Cube);
+        _useConsistentSize = EditorPrefs.GetBool(ConsistentSizeKey, true);
 
         if (_editHandles)
         {
@@ -45,11 +48,6 @@ public class CompositeCollider2DHandleEditor : Editor
         DrawDefaultInspector();
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Global Collider Handle Customization", EditorStyles.boldLabel);
-
-        float newGlobalHandleSize = EditorGUILayout.FloatField("Global Handle Size", _globalHandleSize);
-        newGlobalHandleSize = Mathf.Max(0.01f, newGlobalHandleSize);
-        Color newHandleColor = EditorGUILayout.ColorField("Handle Color", _handleColor);
-        HandleShape newHandleShape = (HandleShape)EditorGUILayout.EnumPopup("Handle Shape", _handleShape);
 
         bool newEditHandles = GUILayout.Toggle(_editHandles, "Edit Collider Handles");
         if (newEditHandles != _editHandles)
@@ -75,6 +73,20 @@ public class CompositeCollider2DHandleEditor : Editor
         else if (_editHandles)
         {
             EditorGUILayout.HelpBox("Edit mode active: use the Scene view handles to adjust the composite collider.\nSelecting a scene tool disables handle editing.", MessageType.Info);
+        }
+
+        EditorGUILayout.Space();
+        float newGlobalHandleSize = EditorGUILayout.FloatField("Global Handle Size", _globalHandleSize);
+        newGlobalHandleSize = Mathf.Max(0.01f, newGlobalHandleSize);
+        Color newHandleColor = EditorGUILayout.ColorField("Handle Color", _handleColor);
+        HandleShape newHandleShape = (HandleShape)EditorGUILayout.EnumPopup("Handle Shape", _handleShape);
+        
+        bool newUseConsistentSize = EditorGUILayout.Toggle("Consistent Size When Zooming", _useConsistentSize);
+        if (newUseConsistentSize != _useConsistentSize)
+        {
+            _useConsistentSize = newUseConsistentSize;
+            EditorPrefs.SetBool(ConsistentSizeKey, _useConsistentSize);
+            SceneView.RepaintAll();
         }
 
         if (!Mathf.Approximately(newGlobalHandleSize, _globalHandleSize) || newHandleColor != _handleColor || newHandleShape != _handleShape)
@@ -136,10 +148,17 @@ public class CompositeCollider2DHandleEditor : Editor
         Vector3 right = colliderCenter + new Vector3(size.x / 2, 0, 0);
 
         Handles.color = _handleColor;
-        Vector3 newTop = Handles.FreeMoveHandle(top, _globalHandleSize, Vector3.zero, GetHandleCap());
-        Vector3 newBottom = Handles.FreeMoveHandle(bottom, _globalHandleSize, Vector3.zero, GetHandleCap());
-        Vector3 newLeft = Handles.FreeMoveHandle(left, _globalHandleSize, Vector3.zero, GetHandleCap());
-        Vector3 newRight = Handles.FreeMoveHandle(right, _globalHandleSize, Vector3.zero, GetHandleCap());
+        
+        float effectiveHandleSize = _globalHandleSize;
+        if (_useConsistentSize)
+        {
+            effectiveHandleSize *= HandleUtility.GetHandleSize(colliderCenter);
+        }
+        
+        Vector3 newTop = Handles.FreeMoveHandle(top, effectiveHandleSize, Vector3.zero, GetHandleCap());
+        Vector3 newBottom = Handles.FreeMoveHandle(bottom, effectiveHandleSize, Vector3.zero, GetHandleCap());
+        Vector3 newLeft = Handles.FreeMoveHandle(left, effectiveHandleSize, Vector3.zero, GetHandleCap());
+        Vector3 newRight = Handles.FreeMoveHandle(right, effectiveHandleSize, Vector3.zero, GetHandleCap());
 
         if (newTop != top || newBottom != bottom || newLeft != left || newRight != right)
         {
@@ -159,7 +178,14 @@ public class CompositeCollider2DHandleEditor : Editor
         Vector3 colliderCenter = circleCollider.transform.position + (Vector3)offset;
         Vector3 handlePosition = colliderCenter + new Vector3(radius, 0, 0);
         Handles.color = _handleColor;
-        Vector3 newHandlePosition = Handles.FreeMoveHandle(handlePosition, _globalHandleSize, Vector3.zero, GetHandleCap());
+        
+        float effectiveHandleSize = _globalHandleSize;
+        if (_useConsistentSize)
+        {
+            effectiveHandleSize *= HandleUtility.GetHandleSize(colliderCenter);
+        }
+        
+        Vector3 newHandlePosition = Handles.FreeMoveHandle(handlePosition, effectiveHandleSize, Vector3.zero, GetHandleCap());
         if (newHandlePosition != handlePosition)
         {
             Undo.RecordObject(circleCollider, "Resize CircleCollider2D");
@@ -172,10 +198,18 @@ public class CompositeCollider2DHandleEditor : Editor
     {
         Vector2[] points = polygonCollider.points;
         Handles.color = _handleColor;
+        
         for (int i = 0; i < points.Length; i++)
         {
             Vector3 worldPoint = polygonCollider.transform.TransformPoint(points[i]);
-            Vector3 newWorldPoint = Handles.FreeMoveHandle(worldPoint, _globalHandleSize, Vector3.zero, GetHandleCap());
+            
+            float effectiveHandleSize = _globalHandleSize;
+            if (_useConsistentSize)
+            {
+                effectiveHandleSize *= HandleUtility.GetHandleSize(worldPoint);
+            }
+            
+            Vector3 newWorldPoint = Handles.FreeMoveHandle(worldPoint, effectiveHandleSize, Vector3.zero, GetHandleCap());
             if (newWorldPoint != worldPoint)
             {
                 Undo.RecordObject(polygonCollider, "Edit PolygonCollider2D Point");
@@ -195,10 +229,17 @@ public class CompositeCollider2DHandleEditor : Editor
         Vector3 left = colliderCenter - new Vector3(size.x / 2, 0, 0);
         Vector3 right = colliderCenter + new Vector3(size.x / 2, 0, 0);
         Handles.color = _handleColor;
-        Vector3 newTop = Handles.FreeMoveHandle(top, _globalHandleSize, Vector3.zero, GetHandleCap());
-        Vector3 newBottom = Handles.FreeMoveHandle(bottom, _globalHandleSize, Vector3.zero, GetHandleCap());
-        Vector3 newLeft = Handles.FreeMoveHandle(left, _globalHandleSize, Vector3.zero, GetHandleCap());
-        Vector3 newRight = Handles.FreeMoveHandle(right, _globalHandleSize, Vector3.zero, GetHandleCap());
+        
+        float effectiveHandleSize = _globalHandleSize;
+        if (_useConsistentSize)
+        {
+            effectiveHandleSize *= HandleUtility.GetHandleSize(colliderCenter);
+        }
+        
+        Vector3 newTop = Handles.FreeMoveHandle(top, effectiveHandleSize, Vector3.zero, GetHandleCap());
+        Vector3 newBottom = Handles.FreeMoveHandle(bottom, effectiveHandleSize, Vector3.zero, GetHandleCap());
+        Vector3 newLeft = Handles.FreeMoveHandle(left, effectiveHandleSize, Vector3.zero, GetHandleCap());
+        Vector3 newRight = Handles.FreeMoveHandle(right, effectiveHandleSize, Vector3.zero, GetHandleCap());
         if (newTop != top || newBottom != bottom || newLeft != left || newRight != right)
         {
             Undo.RecordObject(capsuleCollider, "Resize CapsuleCollider2D");
