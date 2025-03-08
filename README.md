@@ -27,4 +27,6 @@ How to use -
 
 **WARNING!!! - Clicking on the checkbox "Edit Collider Handles" will unselect ANY scene tool you curently have selected.** 
 
+![Screenshot 2025-03-08 075607](https://github.com/user-attachments/assets/996f5e60-71d0-4878-ab2c-d6eff294b5f2)
+
 You can click on ANY scene tool while editing collider handles, and this will UNCHECK the checkbox for collider handle editing. You will need to check this box again if you want to edit the collider handles.
