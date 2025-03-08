@@ -1,3 +1,7 @@
+
+![ColliderHandleEditing](https://github.com/user-attachments/assets/b23bf65c-0ea1-489f-9f3c-d010bd17be25)
+
+
 These files allow you to edit the scale of Unity's 2D collider handles.  
  
 NOTE: Using these files will remove Unity's default 2D collider editing toggle. 
