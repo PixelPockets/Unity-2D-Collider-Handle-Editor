@@ -10,7 +10,7 @@ How to use -
 
 2D collider handle editor interface - 
 
-![Screenshot 2025-03-07 230205](https://github.com/user-attachments/assets/d2680652-5872-4a8d-80e5-aca1667dd574)
+![Screenshot 2025-03-07 231815](https://github.com/user-attachments/assets/d089aecd-cbf0-4cdf-b7fd-477b7d310e6d)
 
 ![Screenshot 2025-03-07 231112](https://github.com/user-attachments/assets/3c74a68e-d10d-4afb-b17f-9b8777292d6d)
 
@@ -18,6 +18,6 @@ How to use -
 
 2D composite collider editor interface - 
 
-![Screenshot 2025-03-07 230512](https://github.com/user-attachments/assets/94f6393c-f1e4-4986-9623-7fde6deda114)
+![Screenshot 2025-03-07 231837](https://github.com/user-attachments/assets/cc2c8d62-556e-4766-b370-164c6ea742cf)
 
 WARNING!!! - Clicking on the checkbox "Edit Collider Handles" will unselect ANY scene tool you curently have selected. Clicking on ANY scene tool while editing collider handles will UNCHECK the checkbox for collider handle editing. You will need to check this box again if you want to edit the collider handles. 
