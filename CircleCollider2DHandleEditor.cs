@@ -4,10 +4,11 @@ using UnityEngine;
 [CustomEditor(typeof(CircleCollider2D))]
 public class CircleCollider2DHandleEditor : Editor
 {
-    private const string HandleSizeKey   = "CircleCollider2D_HandleSize";
-    private const string HandleColorKey  = "CircleCollider2D_HandleColor";
-    private const string EditColliderKey = "CircleCollider2D_EditCollider";
-    private const string HandleShapeKey  = "CircleCollider2D_HandleShape";
+    private const string HandleSizeKey      = "CircleCollider2D_HandleSize";
+    private const string HandleColorKey     = "CircleCollider2D_HandleColor";
+    private const string EditColliderKey    = "CircleCollider2D_EditCollider";
+    private const string HandleShapeKey     = "CircleCollider2D_HandleShape";
+    private const string ConsistentSizeKey  = "CircleCollider2D_ConsistentSize";
 
     private enum HandleShape 
     { 
@@ -21,13 +22,15 @@ public class CircleCollider2DHandleEditor : Editor
     private float _handleSize = 0.1f;
     private Color _handleColor = Color.green;
     private bool _editCollider;
+    private bool _useConsistentSize = true;
 
     private void OnEnable()
     {
-        _handleSize   = EditorPrefs.GetFloat(HandleSizeKey, 0.1f);
-        _handleColor  = GetColorFromPrefs(HandleColorKey, Color.green);
-        _editCollider = EditorPrefs.GetBool(EditColliderKey, false);
-        _handleShape  = (HandleShape)EditorPrefs.GetInt(HandleShapeKey, (int)HandleShape.Cube);
+        _handleSize       = EditorPrefs.GetFloat(HandleSizeKey, 0.1f);
+        _handleColor      = GetColorFromPrefs(HandleColorKey, Color.green);
+        _editCollider     = EditorPrefs.GetBool(EditColliderKey, false);
+        _handleShape      = (HandleShape)EditorPrefs.GetInt(HandleShapeKey, (int)HandleShape.Cube);
+        _useConsistentSize = EditorPrefs.GetBool(ConsistentSizeKey, true);
 
         if (_editCollider)
         {
@@ -43,8 +46,8 @@ public class CircleCollider2DHandleEditor : Editor
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();
-
         EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Collider Handle Customization", EditorStyles.boldLabel);
 
         bool newEditCollider = GUILayout.Toggle(_editCollider, "Edit Collider Handles");
         if (newEditCollider != _editCollider)
@@ -64,19 +67,28 @@ public class CircleCollider2DHandleEditor : Editor
             SceneView.RepaintAll();
         }
         
-        if (_editCollider)
+        if (_editCollider && Tools.current != Tool.None)
+        {
+            EditorGUILayout.HelpBox("A scene tool is active. To use it, editing mode will be disabled.", MessageType.Warning);
+        }
+        else if (_editCollider)
         {
             EditorGUILayout.HelpBox("Edit mode active: use the Scene view handles to adjust the collider.\nNote: Scene tools disabled; selecting a scene tool disables handle editing.", MessageType.Info);
         }
 
         EditorGUILayout.Space();
-        EditorGUILayout.LabelField("Handle Customization", EditorStyles.boldLabel);
-
         float newHandleSize = EditorGUILayout.FloatField("Handle Size", _handleSize);
         newHandleSize = Mathf.Max(0.01f, newHandleSize);
         Color newHandleColor = EditorGUILayout.ColorField("Handle Color", _handleColor);
-
         HandleShape newHandleShape = (HandleShape)EditorGUILayout.EnumPopup("Handle Shape", _handleShape);
+        
+        bool newUseConsistentSize = EditorGUILayout.Toggle("Consistent Size When Zooming", _useConsistentSize);
+        if (newUseConsistentSize != _useConsistentSize)
+        {
+            _useConsistentSize = newUseConsistentSize;
+            EditorPrefs.SetBool(ConsistentSizeKey, _useConsistentSize);
+            SceneView.RepaintAll();
+        }
 
         if (!Mathf.Approximately(newHandleSize, _handleSize) || newHandleColor != _handleColor || newHandleShape != _handleShape)
         {
@@ -115,7 +127,14 @@ public class CircleCollider2DHandleEditor : Editor
         Vector3 handlePosition = colliderCenter + new Vector3(radius, 0, 0);
 
         Handles.color = _handleColor;
-        Vector3 newHandlePosition = Handles.FreeMoveHandle(handlePosition, _handleSize, Vector3.zero, GetHandleCap());
+        
+        float effectiveHandleSize = _handleSize;
+        if (_useConsistentSize)
+        {
+            effectiveHandleSize *= HandleUtility.GetHandleSize(colliderCenter);
+        }
+        
+        Vector3 newHandlePosition = Handles.FreeMoveHandle(handlePosition, effectiveHandleSize, Vector3.zero, GetHandleCap());
         if (newHandlePosition != handlePosition)
         {
             Undo.RecordObject(collider, "Resize CircleCollider2D");
