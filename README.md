@@ -15,14 +15,6 @@ How to use -
 3) Choose the color of the collider handles by clicking on the "Handle Color" box.
 4) Choose which handle shape you'd like to use by clicking on the "Handle Shape" dropdown menu. 
 
-2D collider handle editor interface - 
-
-![Screenshot 2025-03-07 231815](https://github.com/user-attachments/assets/d089aecd-cbf0-4cdf-b7fd-477b7d310e6d)
-
-![Screenshot 2025-03-07 231112](https://github.com/user-attachments/assets/3c74a68e-d10d-4afb-b17f-9b8777292d6d)
-
-![Screenshot 2025-03-07 231127](https://github.com/user-attachments/assets/9b6b64ff-e716-4361-84f4-6d06151086dc)
-
 2D composite collider editor interface - 
 
 **Note: With the composite collider, the handle editing applies to ALL 2D colliders within that composite collider.**
