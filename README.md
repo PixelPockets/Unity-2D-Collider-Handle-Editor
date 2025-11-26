@@ -6,7 +6,7 @@ These files allow you to edit the scale of Unity's 2D collider handles.
  
 NOTE: Using these files will remove Unity's default 2D collider editing toggle. 
 
-**WARNING: THIS HAS ONLY BEEN TESTED WITH UNITY VERSION 2022.3.53f.**
+**WARNING: THIS HAS ONLY BEEN TESTED WITH UNITY VERSION 2022.3.53f. AND UNITY 6**
 
 How to use - 
 
